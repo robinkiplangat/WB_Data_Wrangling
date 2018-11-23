@@ -24,164 +24,75 @@ def collect():
     takwimu_indicators = pd.read_csv('key/takwimu_indicators.csv',
                                      index_col=0, squeeze=True).to_dict()
     # Gather indicator data on the selected countries
-    wb_data = wbdata.get_dataframe(takwimu_indicators, 
+    data = wbdata.get_dataframe(takwimu_indicators, 
                                  country=country_code, convert_date=False)
-    return wb_data    
+    return data.to_csv('data/worldbank_data.csv')   
 
 ## Structure into Hurumap format
 
-data = pd.read_csv('data/takwimu_wb_data.csv')
-# takwimu_Sheet = gc.create('Takwimu_WB spreadsheet')
-# takwimu_Sheet.share('robyne.kiplangat@gmail.com', perm_type='user', role='owner')
-
-takwimu_Sheet = gc.open('Takwimu_WB_spreadsheet')
-
-takwimu_Sheet.worksheets()
+data = pd.read_csv('data/takwimu_worldbank_data.csv')
+columns = ['geography','date','male','female']
+melted_columns = ['geography','geo_version','gender','total']
 
 #      population
-def population():
-    
+def population():  
     df = data[['country', 'date','Population Male', 'PopulationFemale' ]].dropna(axis=0)
-    df = df[df['date']== df['date'].max()]
-    df.columns = ['name','date','male','female']
 
-    df = df.melt(id_vars=['name','date'], value_vars=['male','female'],
-            var_name='sex', value_name='total')
-
-    df['geo_code'] = df['name'].map(countries)
-    df['geo_level'] = "country"
+    df = df[df['date']== df['date'].max()] # most recent values
+    df.columns = columns
+    df = df.melt(id_vars=['geography','date'], value_vars=['male','female'],
+            var_name='gender', value_name='total').sort_values('geography')
     df = df.rename(columns={"date": "geo_version"})
-
-    population = df[['geo_level','geo_code','name',
-                                   'geo_version','sex','total']].sort_values('name')
-    try:
-        sheet = takwimu_Sheet.worksheet('population')
-
-    except gspread.exceptions.WorksheetNotFound:
-            takwimu_Sheet.add_worksheet(title='population', rows="100", cols="20")
-            sheet = gc.open('Takwimu_WB_spreadsheet').worksheet('population')
-
-            population = gd.set_with_dataframe(sheet, population, include_index=False,
-                          include_column_header=True,resize=False)
-            return population
-
+    population = df[melted_columns]
+    
     return population
 
 #     basic services
 def basic_services():
     df = data[['country', 'date','access to basic services - Electricity','access to basic services - Water' ]].dropna(axis=0)
     df = df[df['date']== df['date'].max()]
-    df.columns = ['name','date','electricity','water']
-
-    df = df.melt(id_vars=['name','date'], value_vars=['electricity','water'],
-            var_name='service', value_name='total')
-
-    df['geo_code'] = df['name'].map(countries)
-    df['geo_level'] = "country"
+    df.columns = ['geography','date','electricity','water']
+    df = df.melt(id_vars=['geography','date'], value_vars=['electricity','water'],
+            var_name='service', value_name='total').sort_values('geography')
     df = df.rename(columns={"date": "geo_version"})
-
-    basic_services = df[['geo_level','geo_code','name',
-                         'geo_version','service','total']].sort_values('name')
-
-    try:
-        sheet = takwimu_Sheet.worksheet('basic_services')
-
-    except gspread.exceptions.WorksheetNotFound:
-            takwimu_Sheet.add_worksheet(title='basic_services', rows="100", cols="20")
-            sheet = gc.open('Takwimu_WB_spreadsheet').worksheet('basic_services')
-
-            basic_services = gd.set_with_dataframe(sheet, basic_services, include_index=False,
-                          include_column_header=True,resize=False)
-            return basic_services
-
+    basic_services = df[['geography','geo_version','service','total']]
+   
     return basic_services
 
 #     youth unemployment
 def youth_unemployment():
 
     df = data[['country', 'date','Youth unemployment-Male','Youth unemployment - Female' ]].dropna(axis=0)
-    df = df[df['date']== df['date'].max()]
-    df.columns = ['name','date','male','female']
-
-
-    df = df.melt(id_vars=['name', 'date'], value_vars=['male','female'],
-            var_name='sex', value_name='total')
-
-    df['geo_code'] = df['name'].map(countries)
-    df['geo_level'] = "country"
+    df = df[df['date']== df['date'].max()] # most recent values
+    df.columns = columns
+    df = df.melt(id_vars=['geography','date'], value_vars=['male','female'],
+            var_name='gender', value_name='total').sort_values('geography')
     df = df.rename(columns={"date": "geo_version"})
-    youth_unemployment = df[['geo_level','geo_code','name',
-                             'geo_version','sex','total']].sort_values('name')
-
-    try:
-        sheet = takwimu_Sheet.worksheet('youth_unemployment')
-
-    except gspread.exceptions.WorksheetNotFound:
-            takwimu_Sheet.add_worksheet(title='youth_unemployment', rows="100", cols="20")
-            sheet = gc.open('Takwimu_WB_spreadsheet').worksheet('youth_unemployment')
-
-            youth_unemployment = gd.set_with_dataframe(sheet, youth_unemployment, include_index=False,
-                          include_column_header=True,resize=False)
-            return youth_unemployment
+    youth_unemployment = df[melted_columns]
 
     return youth_unemployment
 
 #     Life expectancy
 def life_expectancy():
 
-    df = data[['country', 'date','Life expectancy-Male','Life expectancy-Female']].dropna(axis=0)
-    df = df[df['date']== df['date'].max()]
-    df.columns = ['name','date','male','female']
-
-
-    df = df.melt(id_vars=['name','date'], value_vars=['male','female'],
-            var_name='sex', value_name='age')
-
-    df['geo_code'] = df['name'].map(countries)
-    df['geo_level'] = "country"
+    df = data[['country','date','Life expectancy-Male','Life expectancy-Female']].dropna(axis=0) 
+    df = df[df['date']== df['date'].max()] # most recent values
+    df.columns = columns
+    df = df.melt(id_vars=['geography','date'], value_vars=['male','female'],
+            var_name='gender', value_name='total').sort_values('geography')
     df = df.rename(columns={"date": "geo_version"})
-
-    life_expectancy = df[['geo_level','geo_code','name',
-                          'geo_version','sex','age']].sort_values('name')
-
-    try:
-        sheet = takwimu_Sheet.worksheet('life_expectancy')
-
-    except gspread.exceptions.WorksheetNotFound:
-            takwimu_Sheet.add_worksheet(title='life_expectancy', rows="100", cols="20")
-            sheet = gc.open('Takwimu_WB_spreadsheet').worksheet('life_expectancy')
-
-            life_expectancy = gd.set_with_dataframe(sheet, life_expectancy, include_index=False,
-                          include_column_header=True,resize=False)
-            return life_expectancy
-
+    life_expectancy = df[melted_columns]
     return life_expectancy
 
 #     infant & Under-5 motality (per 1000)
 def infant_under_5_mortality():
     df = data[['country', 'date','Infant Mortality','Under 5 Mortality rates']].dropna(axis=0)
-    df = df[df['date']== df['date'].max()]
-
-    df.columns = ['name','date','infant','under_5']
-
-    df = df.melt(id_vars=['name','date'], value_vars=['infant','under_5'],
-            var_name='mortality', value_name='rate')
-
-    df['geo_code'] = df['name'].map(countries)
-    df['geo_level'] = "country"
+        df = df[df['date']== df['date'].max()] # most recent values
+    df.columns = columns
+    df = df.melt(id_vars=['geography','date'], value_vars=['male','female'],
+            var_name='gender', value_name='total').sort_values('geography')
     df = df.rename(columns={"date": "geo_version"})
-    infant_under_5_mortality = df[['geo_level','geo_code','name',
-                                   'geo_version','mortality','rate']].sort_values('name')
-    try:
-        sheet = takwimu_Sheet.worksheet('infant_under_5_mortality')
-
-    except gspread.exceptions.WorksheetNotFound:
-            takwimu_Sheet.add_worksheet(title='infant_under_5_mortality', rows="100", cols="20")
-            sheet = gc.open('Takwimu_WB_spreadsheet').worksheet('infant_under_5_mortality')
-
-            infant_under_5_mortality = gd.set_with_dataframe(sheet, infant_under_5_mortality, include_index=False,
-                          include_column_header=True,resize=False)
-            return infant_under_5_mortality
+    infant_under_5_mortality = df[melted_columns]
 
     return infant_under_5_mortality
 
@@ -465,5 +376,8 @@ def process_to_sheet():
     literacy_rate()
 
 if __name__ == "__main__":
-    data = collect()
-    save_to_csv()
+    # data = collect()
+    # save_to_csv()
+    # collect()
+    # population().to_csv('huru/population.csv')
+    life_expectancy().to_csv('life_expectancy.csv')
