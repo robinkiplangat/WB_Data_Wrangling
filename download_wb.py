@@ -4,11 +4,12 @@
 import pandas as pd 
 import wbdata
 
-# ## Access WB Data
+#   Access WB Data
 countries = {"Burkina Faso":"BF", "Congo, Dem. Rep.":"CD", "Ethiopia":"ET", "Kenya":"KE", "Nigeria":"NG", 
           "Senegal":"SN", "Tanzania":"TZ", "Uganda":"UG", "South Africa":"ZA", "Zambia":"ZM"}
 
 country_code = list({v for (k,v) in countries.items()})
+country_name = list({k for (k,v) in countries.items()})
 
 def collect():
     # generate a dict from the indicators file
@@ -19,13 +20,21 @@ def collect():
                                  country=country_code, convert_date=False)
     return data.to_csv('data/takwimu_worldbank_data.csv')
 
-## Structure into Hurumap format
+# def process_wb_data():
+#     for x in country_name:
+#         name = x+'.csv'
+#         directory = 'data/'+x
+#         if not os.path.exists(directory):
+#             os.makedirs(directory)
+#         data.loc[x].to_csv(directory+'/'+name)
+
+#  Structure into Hurumap format
 
 data = pd.read_csv('data/takwimu_worldbank_data.csv')
 columns = ['geography','date','male','female']
 melted_columns = ['geography','geo_version','gender','total']
 
-#      population
+#   population
 def population(): 
     df = data[['country', 'date','Population Male', 'PopulationFemale' ]].dropna(axis=0)
     df = df[df['date']== df['date'].max()] # most recent values
@@ -37,7 +46,7 @@ def population():
     
     return population
 
-#     basic services
+#   basic services
 def basic_services():
     df = data[['country', 'date','access to basic services - Electricity','access to basic services - Water' ]].dropna(axis=0)
     df = df[df['date']== df['date'].max()]
@@ -49,7 +58,7 @@ def basic_services():
    
     return basic_services
 
-#     youth unemployment
+#   youth unemployment
 def youth_unemployment():
 
     df = data[['country', 'date','Youth unemployment-Male','Youth unemployment - Female' ]].dropna(axis=0)
@@ -62,7 +71,7 @@ def youth_unemployment():
 
     return youth_unemployment
 
-#     Life expectancy
+#   Life expectancy
 def life_expectancy():
 
     df = data[['country','date','Life expectancy-Male','Life expectancy-Female']].dropna(axis=0) 
@@ -74,7 +83,7 @@ def life_expectancy():
     life_expectancy = df[melted_columns]
     return life_expectancy
 
-#     infant & Under-5 motality (per 1000)
+#   infant & Under-5 motality (per 1000)
 def infant_under_5_mortality():
     df = data[['country', 'date','Infant Mortality','Under 5 Mortality rates']].dropna(axis=0)
     df = df[df['date']== df['date'].max()] # most recent values
@@ -87,7 +96,7 @@ def infant_under_5_mortality():
     return infant_under_5_mortality
 
 
-#     Prevalence of HIV
+#   Prevalence of HIV
 def hiv_prevalence():
     df = data[['country', 'date','Prevalence of HIV, male (% ages 15-24)','Prevalence of HIV, female (% ages 15-24)']].dropna(axis=0)
     df = df[df['date']== df['date'].max()] # most recent values
@@ -99,7 +108,7 @@ def hiv_prevalence():
 
     return hiv_prevalence
 
-#     Primary completion rate
+#   Primary completion rate
 def primary_completion():
     df = data[['country', 'date','Primary completion rate, male (%)','Primary completion rate, female (%)']].dropna(axis=0)
     df = df[df['date']== df['date'].max()] # most recent values
@@ -111,7 +120,7 @@ def primary_completion():
 
     return primary_completion
 
-#     Employment to population ratio
+#   Employment to population ratio
 def employment_to_population():
     df = data[['country', 'date','Employment to population ratio male (%)','Employment to population ratio female (%)']].dropna(axis=0)
     df = df[df['date']== df['date'].max()] # most recent values
@@ -123,8 +132,7 @@ def employment_to_population():
 
     return employment_to_population
 
-#     Physicians ,Nurses and Mid wives per 1000
-
+#   Physicians ,Nurses and Mid wives per 1000
 def health_staff():
 
     df = data[['country', 'date','Physicians per 1000','Nurses and Mid wives']].dropna(axis=0)
@@ -135,10 +143,9 @@ def health_staff():
     df = df.rename(columns={"date": "geo_version"})
     health_staff = df[['geography','geo_version','health_staff','total']]
 
-
     return health_staff
 
-#     Account ownership
+#   Account ownership
 def acc_ownership():
     df = data[['country', 'date','Account ownership,male (% of population ages 15+)','Account ownership,female (% of population ages 15+)']].dropna(axis=0)
     df = df[df['date']== df['date'].max()] # most recent values
@@ -149,7 +156,7 @@ def acc_ownership():
     acc_ownership = df[melted_columns]
     return acc_ownership
 
-#     School enrollment, primary
+#   School enrollment, primary
 def primary_school_enrollment():
 
     df = data[['country', 'date','School enrollment, primary, male (% gross)','School enrollment, primary, female (% gross)']].dropna(axis=0)
@@ -160,12 +167,9 @@ def primary_school_enrollment():
     df = df.rename(columns={"date": "geo_version"})
     primary_school_enrollment = df[melted_columns]
 
-
-
     return primary_school_enrollment
 
-
-#     Secondary school enrolment
+#   Secondary school enrolment
 def secondary_school_enrollment():
 
     df = data[['country', 'date','Secondary school enrolment - Male (% gross)','Secondary school enrolment - Female (% gross)']].dropna(axis=0)
@@ -178,7 +182,6 @@ def secondary_school_enrollment():
 
     return secondary_school_enrollment
 
-
 #     Literacy rate
 def literacy_rate():
     df = data[['country', 'date','Literacy rate - Male','Literacy rate - Female']].dropna(axis=0)
@@ -190,8 +193,7 @@ def literacy_rate():
     literacy_rate = df[melted_columns]
     return literacy_rate
 
-# export datasets to csv
-
+#   export datasets to csv
 def save_to_csv():  
     population().to_csv('huru/population.csv')
     basic_services().to_csv('huru/basic_services.csv')
@@ -206,7 +208,9 @@ def save_to_csv():
     primary_school_enrollment().to_csv('huru/primary_school_enrollment.csv')
     secondary_school_enrollment().to_csv('huru/secondary_school_enrollment.csv')
     literacy_rate().to_csv('huru/literacy_rate.csv')
+
+    
     
 if __name__ == "__main__":
     save_to_csv()
-    
+
