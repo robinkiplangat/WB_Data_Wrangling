@@ -195,19 +195,19 @@ def literacy_rate():
 
 #   export datasets to csv
 def save_to_csv():  
-    population().to_csv('huru/population.csv')
-    basic_services().to_csv('huru/basic_services.csv')
-    youth_unemployment().to_csv('huru/youth_unemployment.csv')
-    life_expectancy().to_csv('huru/life_expectancy.csv')
-    infant_under_5_mortality().to_csv('huru/infant_under_5_mortality.csv')
-    hiv_prevalence().to_csv('huru/hiv_prevalence.csv')
-    primary_completion().to_csv('huru/primary_completion.csv')
-    employment_to_population().to_csv('huru/employment_to_population.csv')
-    health_staff().to_csv('huru/health_staff.csv')
-    acc_ownership().to_csv('huru/acc_ownership.csv')   
-    primary_school_enrollment().to_csv('huru/primary_school_enrollment.csv')
-    secondary_school_enrollment().to_csv('huru/secondary_school_enrollment.csv')
-    literacy_rate().to_csv('huru/literacy_rate.csv')
+    population().to_csv('huru/population.csv',index=False)
+    basic_services().to_csv('huru/basic_services.csv',index=False)
+    youth_unemployment().to_csv('huru/youth_unemployment.csv',index=False)
+    life_expectancy().to_csv('huru/life_expectancy.csv',index=False)
+    infant_under_5_mortality().to_csv('huru/infant_under_5_mortality.csv',index=False)
+    hiv_prevalence().to_csv('huru/hiv_prevalence.csv',index=False)
+    primary_completion().to_csv('huru/primary_completion.csv',index=False)
+    employment_to_population().to_csv('huru/employment_to_population.csv',index=False)
+    health_staff().to_csv('huru/health_staff.csv',index=False)
+    acc_ownership().to_csv('huru/acc_ownership.csv',index=False)   
+    primary_school_enrollment().to_csv('huru/primary_school_enrollment.csv',index=False)
+    secondary_school_enrollment().to_csv('huru/secondary_school_enrollment.csv',index=False)
+    literacy_rate().to_csv('huru/literacy_rate.csv',index=False)
 
     
     
